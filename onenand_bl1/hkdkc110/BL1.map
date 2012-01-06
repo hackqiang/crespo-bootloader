@@ -1,0 +1,72 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+                0xd0030000                . = 0xd0030000
+                0xd0030000                . = ALIGN (0x4)
+
+.text           0xd0030000      0x7d0
+ Init.o(.text)
+ .text          0xd0030000      0x6bc Init.o
+                0xd0030000                _start
+ *(.text)
+ .text          0xd00306bc      0x114 Main.o
+                0xd0030744                Main
+                0xd00306c4                onenand_writew
+                0xd00306cc                ONENAND_ReadPage
+                0xd00306bc                onenand_readw
+
+.glue_7         0xd00307d0        0x0
+ .glue_7        0xd00307d0        0x0 Init.o
+ .glue_7        0xd00307d0        0x0 Main.o
+
+.glue_7t        0xd00307d0        0x0
+ .glue_7t       0xd00307d0        0x0 Init.o
+ .glue_7t       0xd00307d0        0x0 Main.o
+
+.vfp11_veneer   0xd00307d0        0x0
+ .vfp11_veneer  0xd00307d0        0x0 Init.o
+ .vfp11_veneer  0xd00307d0        0x0 Main.o
+                0xd00307d0                . = ALIGN (0x4)
+                0xd00307d0                rodata = .
+
+.rodata
+ *(.rodata)
+                0xd00307d0                . = ALIGN (0x4)
+                0xd00307d0                data_start = .
+
+.data           0xd00307d0        0x4
+ *(.data)
+ .data          0xd00307d0        0x0 Init.o
+ .data          0xd00307d0        0x4 Main.o
+                0xd00307d0                run_uboot
+                0xd00307d4                . = ALIGN (0x4)
+
+.got
+ *(.got)
+                0xd00307d4                . = ALIGN (0x4)
+                0xd00307d4                bss_start = .
+
+.bss            0xd00307d4        0x0
+ *(.bss)
+ .bss           0xd00307d4        0x0 Init.o
+ .bss           0xd00307d4        0x0 Main.o
+                0xd00307d4                bss_end = .
+Address of section .text set to 0xd0030000
+LOAD Init.o
+LOAD Main.o
+OUTPUT(BL1.elf elf32-littlearm)
+
+.ARM.attributes
+                0x00000000       0x14
+ .ARM.attributes
+                0x00000000       0x14 Init.o
+ .ARM.attributes
+                0x00000014       0x18 Main.o
+
+.comment        0x00000000       0x12
+ .comment       0x00000000       0x12 Main.o
