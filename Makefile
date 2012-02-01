@@ -2583,11 +2583,7 @@ hkdkc110d_mtd_config :	unconfig
 
 herring_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm s5pc11x herring samsung s5pc110
-	@echo "TEXT_BASE = 0xc3e00000" > $(obj)board/samsung/herring/config.mk
-	@echo "CONFIG_ONENAND_U_BOOT = y" >> $(obj)include/config.mk
-herring_test_config :	unconfig
-	@$(MKCONFIG) $(@:_config=) arm s5pc11x herring samsung s5pc110
-	@echo "TEXT_BASE = 0xc3e00000" > $(obj)board/samsung/herring/config.mk
+	@echo "TEXT_BASE = 0x33040000" > $(obj)board/samsung/herring/config.mk
 
 smdkv210single_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm s5pc11x smdkc110 samsung s5pc110
@@ -3142,7 +3138,6 @@ clean:
 	@rm -f $(obj)include/bmp_logo.h
 	@rm -f $(obj)nand_spl/{u-boot-spl,u-boot-spl.map,System.map}
 	@rm -f $(obj)onenand_ipl/onenand-{ipl,ipl.bin,ipl-2k.bin,ipl-4k.bin,ipl.map}
-	@make -C $(obj)onenand_bl1/herring clean
 	@rm -f $(obj)api_examples/demo $(VERSION_FILE)
 	@find $(OBJTREE) -type f \
 		\( -name 'core' -o -name '*.bak' -o -name '*~' \
