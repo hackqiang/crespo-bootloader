@@ -48,7 +48,7 @@
 #include <movi.h>
 #include <regs.h>
 #include <serial.h>
-#include <nand.h>
+//#include <nand.h>
 #include <onenand_uboot.h>
 
 #ifdef CONFIG_GENERIC_MMC

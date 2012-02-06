@@ -351,7 +351,7 @@ mmcsd_boot:
 	b       after_copy
 
 nor_boot:
-	bl      read_hword
+//	bl      read_hword
 	b       after_copy
 
 
@@ -431,7 +431,7 @@ copy_from_nand:
 	mov	r9, r0
 	
 	mov	r9, #0x100		/* Compare about 8KB */
-	bl	copy_uboot_to_ram
+//	bl	copy_uboot_to_ram
 
 	tst 	r0, #0x0
 	bne	copy_failed

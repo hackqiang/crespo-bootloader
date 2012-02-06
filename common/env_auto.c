@@ -55,7 +55,7 @@ extern nand_info_t nand_info[];
 extern struct mtd_info onenand_mtd;
 
 /* info for NOR flash chips, defined in board/samsung/common/flash_common.c */
-extern flash_info_t flash_info[];
+//extern flash_info_t flash_info[];
 
 /* references to names in env_common.c */
 extern uchar default_environment[];
@@ -374,6 +374,7 @@ err:
 
 int saveenv_nor(void)
 {
+#if 0
 	u32 sect_num;
 	u32 sect_size;
 	u32 pos_env;
@@ -417,6 +418,9 @@ int saveenv_nor(void)
         printf("done\n");
 	
         return 1;
+#else
+	return 1;
+#endif
 }
 int saveenv(void)
 {

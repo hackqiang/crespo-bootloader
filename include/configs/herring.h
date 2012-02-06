@@ -29,7 +29,16 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-//#define FPGA_SMDKC110
+#include <config_cmd_default.h>
+
+#undef CONFIG_CMD_NET
+#undef CONFIG_CMD_NFS
+#undef CONFIG_CMD_NAND
+#undef CONFIG_CMD_FLASH
+#undef CONFIG_CMD_IMLS
+
+#undef CONFIG_NAND
+#undef CONFIG_BOOT_NAND
 
 /*
  * High Level Configuration Options
@@ -43,8 +52,8 @@
 #define CONFIG_MCP_B		1
 #define CONFIG_EVT1		1		/* EVT1 */
 
-//#define CONFIG_FUSED		1		/* Fused chip */
-//#define CONFIG_SECURE		1		/* secure booting */
+#define CONFIG_FUSED		1		/* Fused chip */
+#define CONFIG_SECURE		1		/* secure booting */
 
 #define CONFIG_MTD_ONENAND	/* Use MTD/OneNAND instead of FSR */
 
@@ -89,7 +98,7 @@
 /*
  * Architecture magic and machine type
  */
-#define MACH_TYPE		2193
+#define MACH_TYPE		3084
 #define UBOOT_MAGIC		(0x43090000 | MACH_TYPE)
 
 /* Power Management is enabled */
@@ -112,19 +121,7 @@
 /*
  * Hardware drivers
  */
-#define DM9000_16BIT_DATA
 
-#define CONFIG_DRIVER_DM9000	1
-
-#ifdef CONFIG_DRIVER_DM9000
-#define CONFIG_DM9000_BASE		(0xA8000000)
-#define DM9000_IO			(CONFIG_DM9000_BASE)
-#if defined(DM9000_16BIT_DATA)
-#define DM9000_DATA			(CONFIG_DM9000_BASE+2)
-#else
-#define DM9000_DATA			(CONFIG_DM9000_BASE+1)
-#endif
-#endif
 /*
  * select serial console configuration
  */
@@ -144,7 +141,6 @@
 #define CFG_I2C_SLAVE		0xFE
 #endif
 #define CONFIG_S5PC11X_I2C
-//#undef CONFIG_S5PC11X_I2C		/* this board has H/W I2C */
 #ifdef CONFIG_S5PC11X_I2C
 #define CONFIG_HARD_I2C		1
 #define CFG_I2C_SPEED		50000
@@ -175,55 +171,21 @@
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_REGINFO
-//#define	CONFIG_CMD_NAND
-//#define	CONFIG_CMD_FLASH
 #ifndef FPGA_SMDKC110
 #define CONFIG_CMD_ONENAND
 #define CONFIG_CMD_MOVINAND
 #endif
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DATE
 
-#include <config_cmd_default.h>
 
-#define CONFIG_CMD_ELF
-#define CONFIG_CMD_DHCP
+//#define CONFIG_CMD_ELF
+//#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_I2C
 
 //#define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 
-/*
- * BOOTP options
- */
-#define CONFIG_BOOTP_SUBNETMASK
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
-#define CONFIG_BOOTP_BOOTPATH
-
-/*#define CONFIG_BOOTARGS    	"root=ramfs devfs=mount console=ttySA0,9600" */
-#define CONFIG_ETHADDR		00:40:5c:26:0a:5b
-#define CONFIG_NETMASK          255.255.255.0
-#define CONFIG_IPADDR		192.168.0.20
-#define CONFIG_SERVERIP		192.168.0.10
-#define CONFIG_GATEWAYIP	192.168.0.1
 
 #define CONFIG_ZERO_BOOTDELAY_CHECK
-
-#define CONFIG_NET_MULTI
-#undef	CONFIG_NET_MULTI
-
-#ifdef CONFIG_NET_MULTI
-#define CONFIG_DRIVER_SMC911X_BASE	0x98800300
-#define CONFIG_DRIVER_SMC911X_16_BIT
-#define CONFIG_DRIVER_CS8900
-#define CS8900_BASE	  		0x18800300
-#define CS8900_BUS16
-#else
-#define CONFIG_DRIVER_SMC911X_16_BIT
-#define CONFIG_DRIVER_SMC911X_BASE	0x98800300
-#undef	CONFIG_DRIVER_CS8900
-#endif
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */
@@ -235,7 +197,7 @@
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP				/* undef to save memory		*/
-#define CFG_PROMPT              "HKDKC110 # "   /* Monitor Command Prompt       */
+#define CFG_PROMPT              "herring # "   /* Monitor Command Prompt       */
 #define CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
 #define CFG_PBSIZE		384		/* Print Buffer Size */
 #define CFG_MAXARGS		16		/* max number of command args	*/
@@ -475,11 +437,13 @@
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
+#define CFG_NO_FLASH
+ #if 0
 #define CFG_MAX_FLASH_BANKS	1	/* max number of memory banks */
 #define CFG_MAX_FLASH_SECT	512
 #define CONFIG_AMD_LV800
 #define PHYS_FLASH_SIZE		0x100000
-
+#endif
 /* timeout values are in ticks */
 #define CFG_FLASH_ERASE_TOUT	(5*CFG_HZ) /* Timeout for Flash Erase */
 #define CFG_FLASH_WRITE_TOUT	(5*CFG_HZ) /* Timeout for Flash Write */
@@ -508,6 +472,8 @@
 /* nand copy size from nand to DRAM.*/
 #define	COPY_BL2_SIZE		0x80000
 
+#define NAND_MAX_CHIPS          1
+#if 0
 /* NAND configuration */
 #define CFG_MAX_NAND_DEVICE     1
 #define CFG_NAND_BASE           (0xE7200000)
@@ -524,6 +490,7 @@
 #define CFG_NAND_HWECC
 #define CONFIG_NAND_BL1_8BIT_ECC
 #undef	CFG_NAND_FLASH_BBT
+#endif
 
 /* IROM specific data */
 #define SDMMC_BLK_SIZE        (0xd003a500)
@@ -552,7 +519,7 @@
 	"dnwu=onenand erase 0 80000; dnw 30008000; onenand write 30008000 0 80000\0"	\
 	"dnwk=onenand erase 600000 500000; dnw 30008000; onenand write 30008000 600000 500000\0" \
 	"dnwr=onenand erase b00000 300000; dnw 30008000; onenand write 30008000 b00000 300000\0"	\
-	"dnws=onenand erase e00000 5a00000; dnw 40000000; onenand write.yaffs2 40000000 e00000 $filesize\0"	\	
+	"dnws=onenand erase e00000 5a00000; dnw 40000000; onenand write.yaffs2 40000000 e00000 $filesize\0"	\
 	"dnwd=onenand erase 6800000; dnw 40000000; onenand write.yaffs2 40000000 6800000 $filesize\0"	\
 	""
 
@@ -561,8 +528,7 @@
 #define CFG_MAX_ONENAND_DEVICE	1
 
 #define CONFIG_BOOT_ONENAND_IROM
-//#define CONFIG_NAND
-//#define CONFIG_BOOT_NAND
+
 #define CONFIG_ONENAND
 #define ONENAND_REG_DBS_DFS_WIDTH 	(0x160)
 #define ONENAND_REG_FLASH_AUX_CNTRL     (0x300)
