@@ -27,7 +27,6 @@ LIB	:= $(obj)libinput.a
 
 COBJS-y += i8042.o
 COBJS-y += keyboard.o
-COBJS-y += pc_keyb.o ps2ser.o ps2mult.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

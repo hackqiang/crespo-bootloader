@@ -29,6 +29,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#if 0
 #include <config_cmd_default.h>
 
 #undef CONFIG_CMD_NET
@@ -36,9 +37,12 @@
 #undef CONFIG_CMD_NAND
 #undef CONFIG_CMD_FLASH
 #undef CONFIG_CMD_IMLS
-
 #undef CONFIG_NAND
 #undef CONFIG_BOOT_NAND
+#endif
+
+#define CONFIG_CMD_ENV
+#define CONFIG_CMD_MISC
 
 /*
  * High Level Configuration Options
@@ -171,21 +175,13 @@
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_REGINFO
-#ifndef FPGA_SMDKC110
 #define CONFIG_CMD_ONENAND
-#define CONFIG_CMD_MOVINAND
-#endif
-
-
-//#define CONFIG_CMD_ELF
-//#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_I2C
 
-//#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
 
 
 #define CONFIG_ZERO_BOOTDELAY_CHECK
+
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200		/* speed to run kgdb serial port */
@@ -495,22 +491,14 @@
 /* IROM specific data */
 #define SDMMC_BLK_SIZE        (0xd003a500)
 
-/* SD/MMC configuration */
-#define CONFIG_MMC
-#define CONFIG_GENERIC_MMC
-#define CONFIG_S3C_HSMMC
-#undef DEBUG_S3C_HSMMC
 
-/* The macro for MMC channel 0 is defined by default and can't be undefined */
-#define USE_MMC0
-#define USE_MMC2
-#define MMC_MAX_CHANNEL		4
+
 
 /*
  * SD/MMC detection takes a little long time
  * So, you can ignore detection process for SD/MMC card
  */
-#undef	CONFIG_NO_SDMMC_DETECTION
+
 
 #define CONFIG_MTDPARTITION	"80000 400000 3000000"
 #define CONFIG_BOOTDELAY	3

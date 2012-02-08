@@ -58,12 +58,6 @@
 
 #undef DEBUG
 
-#ifdef CONFIG_DRIVER_SMC91111
-#include "../drivers/net/smc91111.h"
-#endif
-#ifdef CONFIG_DRIVER_LAN91C96
-#include "../drivers/net/lan91c96.h"
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -84,13 +78,7 @@ extern void dataflash_print_info(void);
 const char version_string[] =
 	U_BOOT_VERSION" (" __DATE__ " - " __TIME__ ")"CONFIG_IDENT_STRING;
 
-#ifdef CONFIG_DRIVER_CS8900
-extern int cs8900_get_enetaddr (uchar * addr);
-#endif
 
-#ifdef CONFIG_DRIVER_RTL8019
-extern void rtl8019_get_enetaddr (uchar * addr);
-#endif
 
 #if defined(CONFIG_HARD_I2C) || \
     defined(CONFIG_SOFT_I2C)
@@ -365,16 +353,10 @@ void start_armboot (void)
 		}
 	}
 
-#ifndef CFG_NO_FLASH
-	/* configure available FLASH banks */
-	size = flash_init ();
-	display_flash_config (size);
-#endif /* CFG_NO_FLASH */
-
 #ifdef CONFIG_VFD
-#	ifndef PAGE_SIZE
-#	  define PAGE_SIZE 4096
-#	endif
+#ifndef PAGE_SIZE
+#define PAGE_SIZE 4096
+#endif
 	/*
 	 * reserve memory for VFD display (always full pages)
 	 */
@@ -407,244 +389,23 @@ void start_armboot (void)
 	mem_malloc_init (_armboot_start - CFG_MALLOC_LEN);
 #endif
 
-//******************************//
-// Board Specific
-// #if defined(CONFIG_SMDKXXXX)
-//******************************//
 
-#if defined(CONFIG_SMDK6410)
-	#if defined(CONFIG_GENERIC_MMC)
+#if defined(CONFIG_GENERIC_MMC)
 	puts ("SD/MMC:  ");
 	mmc_exist = mmc_initialize(gd->bd);
-	if (mmc_exist != 0)
-	{
+	if (mmc_exist != 0) {
 		puts ("0 MB\n");
 	}
-	#else
-	#if defined(CONFIG_MMC)
-	puts("SD/MMC:  ");
+#endif
 
-	if (INF_REG3_REG == 0)
-		movi_ch = 0;
-	else
-		movi_ch = 1;
-
-	movi_set_capacity();
-	movi_init();
-	movi_set_ofs(MOVI_TOTAL_BLKCNT);
-	#endif
-	#endif
-
-	if (INF_REG3_REG == BOOT_ONENAND) {
-	#if defined(CONFIG_CMD_ONENAND)
-		puts("OneNAND: ");
-		onenand_init();
-	#endif
-		/*setenv("bootcmd", "onenand read c0008000 80000 380000;bootm c0008000");*/
-	} else {
-		puts("NAND:    ");
-		nand_init();
-
-		if (INF_REG3_REG == 0 || INF_REG3_REG == 7)
-			setenv("bootcmd", "movi read kernel c0008000;movi read rootfs c0800000;bootm c0008000");
-		else
-			setenv("bootcmd", "nand read c0008000 80000 380000;bootm c0008000");
-	}
-#endif	/* CONFIG_SMDK6410 */
-
-#if defined(CONFIG_SMDKC100)
-
-	#if defined(CONFIG_GENERIC_MMC)
-		puts ("SD/MMC:  ");
-		mmc_exist = mmc_initialize(gd->bd);
-		if (mmc_exist != 0)
-		{
-			puts ("0 MB\n");
-		}
-	#endif
-
-	#if defined(CONFIG_CMD_ONENAND)
-		puts("OneNAND: ");
-		onenand_init();
-	#endif
-
-	#if defined(CONFIG_CMD_NAND)
-		puts("NAND:    ");
-		nand_init();
-	#endif
-	
-#endif /* CONFIG_SMDKC100 */
-
-#if defined(CONFIG_SMDKC110)
-
-	#if defined(CONFIG_GENERIC_MMC)
-		puts ("SD/MMC:  ");
-		mmc_exist = mmc_initialize(gd->bd);
-		if (mmc_exist != 0)
-		{
-			puts ("0 MB\n");
-		}
-	#endif
-
-	#if defined(CONFIG_MTD_ONENAND)
-		puts("OneNAND: ");
-		onenand_init();
-		/*setenv("bootcmd", "onenand read c0008000 80000 380000;bootm c0008000");*/
-	#else
-		//puts("OneNAND: (FSR layer enabled)\n");
-	#endif
-
-	#if defined(CONFIG_CMD_NAND)
-		puts("NAND:    ");
-		nand_init();
-	#endif
-	
-#endif /* CONFIG_SMDKC110 */
-
-#if defined(CONFIG_SMDK6440)
-	#if defined(CONFIG_GENERIC_MMC)
-	puts ("SD/MMC:  ");
-	mmc_exist = mmc_initialize(gd->bd);
-	if (mmc_exist != 0)
-	{
-		puts ("0 MB\n");
-	}
-	#else
-	#if defined(CONFIG_MMC)
-	if (INF_REG3_REG == 1) {	/* eMMC_4.3 */
-		puts("eMMC:    ");
-		movi_ch = 1;
-		movi_emmc = 1;
-
-		movi_init();
-		movi_set_ofs(0);
-	} else if (INF_REG3_REG == 7 || INF_REG3_REG == 0) {	/* SD/MMC */
-		if (INF_REG3_REG & 0x1)
-			movi_ch = 1;
-		else
-			movi_ch = 0;
-
-		puts("SD/MMC:  ");
-
-		movi_set_capacity();
-		movi_init();
-		movi_set_ofs(MOVI_TOTAL_BLKCNT);
-
-	} else {
-
-	}
-	#endif
-	#endif
-
-	if (INF_REG3_REG == 2) {
-			/* N/A */
-	} else {
-		puts("NAND:    ");
-		nand_init();
-		//setenv("bootcmd", "nand read c0008000 80000 380000;bootm c0008000");
-	}
-#endif /* CONFIG_SMDK6440 */
-
-#if defined(CONFIG_SMDK6430)
-	#if defined(CONFIG_GENERIC_MMC)
-	puts ("SD/MMC:  ");
-	mmc_exist = mmc_initialize(gd->bd);
-	if (mmc_exist != 0)
-	{
-		puts ("0 MB\n");
-	}
-	#else
-	#if defined(CONFIG_MMC)
-	puts("SD/MMC:  ");
-
-	if (INF_REG3_REG == 0)
-		movi_ch = 0;
-	else
-		movi_ch = 1;
-
-	movi_set_capacity();
-	movi_init();
-	movi_set_ofs(MOVI_TOTAL_BLKCNT);
-	#endif
-
-	#if defined(CONFIG_GENERIC_MMC)
-	puts ("SD/MMC:  ");
-	mmc_exist = mmc_initialize(gd->bd);
-	if (mmc_exist != 0)
-	{
-		puts ("0 MB\n");	
-	}
-	#endif
-
-	if (INF_REG3_REG == BOOT_ONENAND) {
-	#if defined(CONFIG_CMD_ONENAND)
-		puts("OneNAND: ");
-		onenand_init();
-	#endif
-		/*setenv("bootcmd", "onenand read c0008000 80000 380000;bootm c0008000");*/
-	} else if (INF_REG3_REG == BOOT_NAND) {
-		puts("NAND:    ");
-		nand_init();
-	} else {
-	}
-
-	if (INF_REG3_REG == 0 || INF_REG3_REG == 7)
-		setenv("bootcmd", "movi read kernel c0008000;movi read rootfs c0800000;bootm c0008000");
-	else
-		setenv("bootcmd", "nand read c0008000 80000 380000;bootm c0008000");
-	#endif
-#endif	/* CONFIG_SMDK6430 */
-
-#if defined(CONFIG_SMDK6442)
-	#if defined(CONFIG_GENERIC_MMC)
-	puts ("SD/MMC:  ");
-	mmc_exist = mmc_initialize(gd->bd);
-	if (mmc_exist != 0)
-	{
-		puts ("0 MB\n");
-	}
-	#else
-	#if defined(CONFIG_MMC)
-	puts("SD/MMC:  ");
-
-	movi_set_capacity();
-	movi_init();
-	movi_set_ofs(MOVI_TOTAL_BLKCNT);
-	
-	#endif
-	#endif
-
-	#if defined(CONFIG_CMD_ONENAND)
-	if (INF_REG3_REG == BOOT_ONENAND) {
-		puts("OneNAND: ");
-		onenand_init();
-		}
-	#endif
-
-#endif	/* CONFIG_SMDK6442 */
-
-#if defined(CONFIG_SMDK2416) || defined(CONFIG_SMDK2450)
-	#if defined(CONFIG_NAND)
-	puts("NAND:    ");
-	nand_init();
-	#endif
-
-	#if defined(CONFIG_ONENAND)
+#if defined(CONFIG_MTD_ONENAND)
 	puts("OneNAND: ");
 	onenand_init();
-	#endif
+	/*setenv("bootcmd", "onenand read c0008000 80000 380000;bootm c0008000");*/
+#else
+	//puts("OneNAND: (FSR layer enabled)\n");
+#endif
 
-	#if defined(CONFIG_BOOT_MOVINAND)
-	puts("SD/MMC:  ");
-
-	if ((0x24564236 == magic[0]) && (0x20764316 == magic[1])) {
-		printf("Boot up for burning\n");
-	} else {
-			movi_init();
-			movi_set_ofs(MOVI_TOTAL_BLKCNT);
-	}
-	#endif
-#endif	/* CONFIG_SMDK2416 CONFIG_SMDK2450 */
 
 #ifdef CONFIG_HAS_DATAFLASH
 	AT91F_DataflashInit();
@@ -663,42 +424,8 @@ void start_armboot (void)
 	serial_initialize();
 #endif
 
-	/* IP Address */
-	gd->bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
-
-	/* MAC Address */
-	{
-		int i;
-		ulong reg;
-		char *s, *e;
-		char tmp[64];
-
-		i = getenv_r ("ethaddr", tmp, sizeof (tmp));
-		s = (i > 0) ? tmp : NULL;
-
-		for (reg = 0; reg < 6; ++reg) {
-			gd->bd->bi_enetaddr[reg] = s ? simple_strtoul (s, &e, 16) : 0;
-			if (s)
-				s = (*e) ? e + 1 : e;
-		}
-
-#ifdef CONFIG_HAS_ETH1
-		i = getenv_r ("eth1addr", tmp, sizeof (tmp));
-		s = (i > 0) ? tmp : NULL;
-
-		for (reg = 0; reg < 6; ++reg) {
-			gd->bd->bi_enet1addr[reg] = s ? simple_strtoul (s, &e, 16) : 0;
-			if (s)
-				s = (*e) ? e + 1 : e;
-		}
-#endif
-	}
-
 	devices_init ();	/* get the devices list going. */
 
-#ifdef CONFIG_CMC_PU2
-	load_sernum_ethaddr ();
-#endif /* CONFIG_CMC_PU2 */
 
 	jumptable_init ();
 #if !defined(CONFIG_SMDK6442)
@@ -713,51 +440,14 @@ void start_armboot (void)
 	/* enable exceptions */
 	enable_interrupts ();
 
-	/* Perform network card initialisation if necessary */
-#ifdef CONFIG_DRIVER_TI_EMAC
-extern void dm644x_eth_set_mac_addr (const u_int8_t *addr);
-	if (getenv ("ethaddr")) {
-		dm644x_eth_set_mac_addr(gd->bd->bi_enetaddr);
-	}
-#endif
-
-#ifdef CONFIG_DRIVER_CS8900
-	cs8900_get_enetaddr (gd->bd->bi_enetaddr);
-#endif
-
-#if defined(CONFIG_DRIVER_SMC91111) || defined (CONFIG_DRIVER_LAN91C96)
-	if (getenv ("ethaddr")) {
-		smc_set_mac_addr(gd->bd->bi_enetaddr);
-	}
-#endif /* CONFIG_DRIVER_SMC91111 || CONFIG_DRIVER_LAN91C96 */
 
 	/* Initialize from environment */
 	if ((s = getenv ("loadaddr")) != NULL) {
 		load_addr = simple_strtoul (s, NULL, 16);
 	}
-#if defined(CONFIG_CMD_NET)
-	if ((s = getenv ("bootfile")) != NULL) {
-		copy_filename (BootFile, s, sizeof (BootFile));
-	}
-#endif
 
 #ifdef BOARD_LATE_INIT
 	board_late_init ();
-#endif
-#if defined(CONFIG_CMD_NET)
-#if defined(CONFIG_NET_MULTI)
-	puts ("Net:   ");
-#endif
-	eth_initialize(gd->bd);
-#if defined(CONFIG_RESET_PHY_R)
-	debug ("Reset Ethernet PHY\n");
-	reset_phy();
-#endif
-#endif
-
-#if defined(CONFIG_CMD_IDE)
-	puts("IDE:   ");
-	ide_init();
 #endif
 
 	/* main_loop() can return to retry autoboot, if so just run it again. */

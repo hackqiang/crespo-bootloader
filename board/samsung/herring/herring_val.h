@@ -1,5 +1,5 @@
-#ifndef _VAL_SMDKC110_H
-#define _VAL_SMDKC110_H
+#ifndef _HERRING_VAL_H
+#define _HERRING_VAL_H
 
 #include <config.h>
 #include <version.h>

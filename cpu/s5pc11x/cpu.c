@@ -231,6 +231,7 @@ int branch_status (void)
  */
 int cpu_mmc_init(bd_t *bis)
 {
+#undef CONFIG_S3C_HSMMC
 #ifdef CONFIG_S3C_HSMMC
 	setup_hsmmc_clock();
 	setup_hsmmc_cfg_gpio();

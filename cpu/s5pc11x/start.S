@@ -164,38 +164,6 @@ reset:
          * not when booting from ram!
          */
 cpu_init_crit:
-
-#ifndef CONFIG_EVT1
-#if 0	
-	bl	v7_flush_dcache_all
-#else
-	bl	disable_l2cache
-
-	mov	r0, #0x0	@ 
-	mov	r1, #0x0	@ i	
-	mov	r3, #0x0
-	mov	r4, #0x0
-lp1:
-	mov	r2, #0x0	@ j
-lp2:	
-	mov	r3, r1, LSL #29		@ r3 = r1(i) <<29
-	mov	r4, r2, LSL #6		@ r4 = r2(j) <<6
-	orr	r4, r4, #0x2		@ r3 = (i<<29)|(j<<6)|(1<<1)
-	orr	r3, r3, r4
-	mov	r0, r3			@ r0 = r3
-	bl	CoInvalidateDCacheIndex
-	add	r2, #0x1		@ r2(j)++
-	cmp	r2, #1024		@ r2 < 1024
-	bne	lp2			@ jump to lp2
-	add	r1, #0x1		@ r1(i)++
-	cmp	r1, #8			@ r1(i) < 8
-	bne	lp1			@ jump to lp1
-
-	bl	set_l2cache_auxctrl
-	
-	bl	enable_l2cache
-#endif
-#endif
 	
 	bl	disable_l2cache
 
@@ -203,79 +171,23 @@ lp2:
 
 	bl	enable_l2cache
 	
-       /*
-        * Invalidate L1 I/D
-        */
-        mov	r0, #0                  @ set up for MCR
-        mcr	p15, 0, r0, c8, c7, 0   @ invalidate TLBs
-        mcr	p15, 0, r0, c7, c5, 0   @ invalidate icache
+   /*
+    * Invalidate L1 I/D
+    */
+    mov	r0, #0                  @ set up for MCR
+    mcr	p15, 0, r0, c8, c7, 0   @ invalidate TLBs
+    mcr	p15, 0, r0, c7, c5, 0   @ invalidate icache
 
-       /*
-        * disable MMU stuff and caches
-        */
-        mrc	p15, 0, r0, c1, c0, 0
-        bic	r0, r0, #0x00002000     @ clear bits 13 (--V-)
-        bic	r0, r0, #0x00000007     @ clear bits 2:0 (-CAM)
-        orr	r0, r0, #0x00000002     @ set bit 1 (--A-) Align
-        orr	r0, r0, #0x00000800     @ set bit 12 (Z---) BTB
-        mcr 	p15, 0, r0, c1, c0, 0
+   /*
+    * disable MMU stuff and caches
+    */
+    mrc	p15, 0, r0, c1, c0, 0
+    bic	r0, r0, #0x00002000     @ clear bits 13 (--V-)
+    bic	r0, r0, #0x00000007     @ clear bits 2:0 (-CAM)
+    orr	r0, r0, #0x00000002     @ set bit 1 (--A-) Align
+    orr	r0, r0, #0x00000800     @ set bit 12 (Z---) BTB
+    mcr 	p15, 0, r0, c1, c0, 0
 
-
-        /* Read booting information */
-        ldr	r0, =PRO_ID_BASE
-        ldr	r1, [r0,#OMR_OFFSET]
-        bic	r2, r1, #0xffffffc1
-
-#ifdef CONFIG_VOGUES
-	/* PS_HOLD(GPH0_0) set to output high */
-	ldr	r0, =ELFIN_GPIO_BASE
-	ldr	r1, =0x00000001
-	str	r1, [r0, #GPH0CON_OFFSET]
-
-	ldr	r1, =0x5500
-	str	r1, [r0, #GPH0PUD_OFFSET]
-
-	ldr	r1, =0x01
-	str	r1, [r0, #GPH0DAT_OFFSET]
-#endif
-
-	/* NAND BOOT */
-	cmp	r2, #0x0		@ 512B 4-cycle
-	moveq	r3, #BOOT_NAND
-
-	cmp	r2, #0x2		@ 2KB 5-cycle
-	moveq	r3, #BOOT_NAND
-
-	cmp	r2, #0x4		@ 4KB 5-cycle	8-bit ECC
-	moveq	r3, #BOOT_NAND
-
-	cmp	r2, #0x6		@ 4KB 5-cycle	16-bit ECC
-	moveq	r3, #BOOT_NAND
-
-	cmp	r2, #0x8		@ OneNAND Mux
-	moveq	r3, #BOOT_ONENAND
-
-	/* SD/MMC BOOT */
-	cmp     r2, #0xc
-	moveq   r3, #BOOT_MMCSD	
-
-	/* NOR BOOT */
-	cmp     r2, #0x14
-	moveq   r3, #BOOT_NOR	
-
-#if 0	/* Android C110 BSP uses OneNAND booting! */
-	/* For second device booting */
-	/* OneNAND BOOTONG failed */
-	cmp     r2, #0x8
-	moveq   r3, #BOOT_SEC_DEV
-#endif
-
-	/* Uart BOOTONG failed */
-	cmp     r2, #(0x1<<4)
-	moveq   r3, #BOOT_SEC_DEV
-	
-	ldr	r0, =INF_REG_BASE
-	str	r3, [r0, #INF_REG3_OFFSET]     
 
 	/*
 	 * Go setup Memory and board specific bits prior to relocation.
@@ -307,52 +219,13 @@ lp2:
 	bic	r1, pc, r0		/* r0 <- current base addr of code */
 	ldr	r2, _TEXT_BASE		/* r1 <- original base addr in ram */
 	bic	r2, r2, r0		/* r0 <- current base addr of code */
-	cmp     r1, r2                  /* compare r0, r1                  */
-	beq     after_copy		/* r0 == r1 then skip flash copy   */
+	cmp r1, r2                  /* compare r0, r1                  */
+	beq after_copy		/* r0 == r1 then skip flash copy   */
 
-#if defined(CONFIG_EVT1)
-	/* If BL1 was copied from SD/MMC CH2 */
-	ldr	r0, =0xD0037488
-	ldr	r1, [r0]
-	ldr	r2, =0xEB200000
-	cmp	r1, r2
-	beq     mmcsd_boot
-#endif
 
-	ldr	r0, =INF_REG_BASE
-	ldr	r1, [r0, #INF_REG3_OFFSET]
-	cmp	r1, #BOOT_NAND		/* 0x0 => boot device is nand */
-	beq	nand_boot
-	cmp	r1, #BOOT_ONENAND	/* 0x1 => boot device is onenand */
-	beq	onenand_boot
-	cmp     r1, #BOOT_MMCSD
-	beq     mmcsd_boot
-	cmp     r1, #BOOT_NOR
-	beq     nor_boot
-	cmp     r1, #BOOT_SEC_DEV
-	beq     mmcsd_boot
-
-nand_boot:
-	mov	r0, #0x1000
-	bl	copy_from_nand
-	b	after_copy
-
-onenand_boot:
+	/* copy u-boot to RAM */
 	bl	onenand_bl2_copy
 	b	after_copy
-
-mmcsd_boot:
-#if DELETE
-	ldr     sp, _TEXT_PHY_BASE      
-	sub     sp, sp, #12
-	mov     fp, #0
-#endif
-	bl      movi_bl2_copy
-	b       after_copy
-
-nor_boot:
-//	bl      read_hword
-	b       after_copy
 
 
 after_copy:
@@ -383,7 +256,7 @@ mmu_on:
 #endif
 
 skip_hw_init:
-	/* Set up the stack						    */
+	/* Set up the stack	*/
 stack_setup:
 #if defined(CONFIG_MEMORY_UPPER_CODE)
 	ldr	sp, =(CFG_UBOOT_BASE + CFG_UBOOT_SIZE - 0x1000)
@@ -419,45 +292,6 @@ _mmu_table_base:
 	.word mmu_table
 #endif
 
-/*
- * copy U-Boot to SDRAM and jump to ram (from NAND or OneNAND)
- * r0: size to be compared
- * Load 1'st 2blocks to RAM because U-boot's size is larger than 1block(128k) size
- */
-	.globl copy_from_nand
-copy_from_nand:
-	push	{lr}		/* save return address */
-
-	mov	r9, r0
-	
-	mov	r9, #0x100		/* Compare about 8KB */
-//	bl	copy_uboot_to_ram
-
-	tst 	r0, #0x0
-	bne	copy_failed
-
-#if defined(CONFIG_EVT1)
-	ldr	r0, =0xd0020000
-#else	
-	ldr	r0, =0xd0030000
-#endif
-	ldr	r1, _TEXT_PHY_BASE	/* 0x23e00000 */
-1:	ldr	r3, [r0], #4
-	ldr	r4, [r1], #4
-	teq	r3, r4
-	bne	compare_failed	/* not matched */
-	subs	r9, r9, #4
-	bne	1b
-
-	pop	{pc}		/* all is OK */
-
-copy_failed:
-	nop			/* copy from nand failed */
-	b	copy_failed
-
-compare_failed:
-	nop			/* compare failed */
-	b	compare_failed
 
 /*
  * we assume that cache operation is done before. (eg. cleanup_before_linux())

@@ -58,29 +58,6 @@ static inline void delay(unsigned long loops)
 	__asm__ volatile ("1:\n" "subs %0, %1, #1\n" "bne 1b":"=r" (loops):"0"(loops));
 }
 
-/*
- * Miscellaneous platform dependent initialisations
- */
-
-static void dm9000_pre_init(void)
-{
-	unsigned int tmp;
-
-#if defined(DM9000_16BIT_DATA)
-	SROM_BW_REG &= ~(0xf << 20);
-	SROM_BW_REG |= (0<<23) | (0<<22) | (0<<21) | (1<<20);
-
-#else	
-	SROM_BW_REG &= ~(0xf << 20);
-	SROM_BW_REG |= (0<<19) | (0<<18) | (0<<16);
-#endif
-	SROM_BC5_REG = ((0<<28)|(1<<24)|(5<<16)|(1<<12)|(4<<8)|(6<<4)|(0<<0));
-
-	tmp = MP01CON_REG;
-	tmp &=~(0xf<<20);
-	tmp |=(2<<20);
-	MP01CON_REG = tmp;
-}
 
 int gpio_init (void)
 {
@@ -134,13 +111,6 @@ int gpio_init (void)
 int board_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-#ifdef CONFIG_DRIVER_SMC911X
-	smc9115_pre_init();
-#endif
-
-#ifdef CONFIG_DRIVER_DM9000
-	dm9000_pre_init();
-#endif
 
 	gpio_init();
 
@@ -226,15 +196,7 @@ int board_late_init (void)
 #ifdef CONFIG_DISPLAY_BOARDINFO
 int checkboard(void)
 {
-#ifdef CONFIG_MCP_SINGLE
-#if defined(CONFIG_VOGUES)
-	printf("\nBoard:   VOGUESV210\n");
-#else
-	printf("\nBoard:   SMDKV210\n");
-#endif //CONFIG_VOGUES
-#else
-	printf("\nBoard:   HKDKC110\n");
-#endif
+	printf("\nBoard: herring\n");
 	return (0);
 }
 #endif
@@ -267,16 +229,4 @@ ulong virt_to_phy_smdkc110(ulong addr)
 }
 #endif
 
-#endif
-
-#if defined(CONFIG_CMD_NAND) && defined(CFG_NAND_LEGACY)
-#include <linux/mtd/nand.h>
-extern struct nand_chip nand_dev_desc[CFG_MAX_NAND_DEVICE];
-void nand_init(void)
-{
-	nand_probe(CFG_NAND_BASE);
-        if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
-                print_size(nand_dev_desc[0].totlen, "\n");
-        }
-}
 #endif

@@ -45,7 +45,7 @@
 #elif defined(CONFIG_S5PC100)
 #include "../cpu/s5pc1xx/usbd-otg-hs.h"
 #elif defined(CONFIG_S5PC110)
-#include "../cpu/s5pc11x/usbd-otg-hs.h"
+#include <asm/arch/s5pc11x_usbd-otg-hs.h>
 #elif defined(CONFIG_S5P6440)
 #include "../cpu/s5p64xx/usbd-otg-hs.h"
 #elif defined(CONFIG_S5P6442)

@@ -28,7 +28,7 @@
 
 #include <asm/errno.h>
 #include <regs.h>
-#include "usbd-otg-hs.h"
+#include <asm/arch/s5pc11x_usbd-otg-hs.h>
 
 #if defined(CONFIG_FASTBOOT)
 

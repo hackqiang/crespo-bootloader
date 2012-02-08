@@ -1580,7 +1580,7 @@ U_BOOT_CMD(
 );
 
 
-#define CONFIG_FASTBOOT_SDFUSE
+#undef CONFIG_FASTBOOT_SDFUSE
 #ifdef CONFIG_FASTBOOT_SDFUSE
 
 #include <part.h>
