@@ -21,6 +21,8 @@
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/onenand.h>
 
+#include <configs/herring.h>
+
 struct mtd_info onenand_mtd;
 struct onenand_chip onenand_chip;
 static const __attribute__((unused)) char dev_name[] = "onenand0";

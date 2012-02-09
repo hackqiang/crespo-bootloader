@@ -29,20 +29,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#if 0
-#include <config_cmd_default.h>
 
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
-#undef CONFIG_CMD_NAND
-#undef CONFIG_CMD_FLASH
-#undef CONFIG_CMD_IMLS
-#undef CONFIG_NAND
-#undef CONFIG_BOOT_NAND
-#endif
-
-#define CONFIG_CMD_ENV
-#define CONFIG_CMD_MISC
 
 /*
  * High Level Configuration Options
@@ -51,10 +38,8 @@
 #define CONFIG_S5PC110		1		/* in a SAMSUNG S3C6410 SoC */
 #define CONFIG_S5PC11X		1		/* in a SAMSUNG S3C64XX Family  */
 #define CONFIG_SMDKC110		1
-//#define CONFIG_MCP_AC		1		/* OneDRAM + mDDR */
-//#define CONFIG_MCP_H		1
-#define CONFIG_MCP_B		1
-#define CONFIG_EVT1		1		/* EVT1 */
+#define CONFIG_MCP_B		1		
+#define CONFIG_EVT1			1		/* EVT1 */
 
 #define CONFIG_FUSED		1		/* Fused chip */
 #define CONFIG_SECURE		1		/* secure booting */
@@ -65,13 +50,41 @@
 #define CONFIG_MISC_INIT_R	1
 #define CONFIG_MAX8698C_POWER 1
 
-#define BOOT_ONENAND		0x1
-#define BOOT_NAND		0x2
-#define BOOT_MMCSD		0x3
-#define BOOT_NOR		0x4
-#define BOOT_SEC_DEV		0x5
 
-#define MEMORY_BASE_ADDRESS	0x30000000
+
+/************************************************************
+ * FB CONFIG
+ ************************************************************/
+#define	CONFIG_BOOT_SPLASH		1		/* Bootsplash Display : charles */
+
+#define	BOOTLOGO_NORMAL    		0
+#define	BOOTLOGO_RECOVERY		1
+#define	BOOTLOGO_UPGRADE		2
+#define	BOOTLOGO_LOWBATTERY		3
+#define	BOOTLOGO_BOOTLOADER		4
+
+
+//------------------------------------------------------------------------------
+#define ELFIN_VIDEO_BASE 		0xF8000000
+#define	LCD_SIZE_WIDTH			1024
+#define	LCD_SIZE_HIGHT			600
+#define	COLOR_ARGB8888			4	// 32bits / 8 = 4 bytes
+
+//------------------------------------------------------------------------------
+//#define	FB_START_ADDR			0x4F800000
+#define	FB_START_ADDR			0x2F800000
+#define	FB_END_ADDR				FB_START_ADDR + (LCD_SIZE_WIDTH * LCD_SIZE_HIGHT * COLOR_ARGB8888);
+
+//------------------------------------------------------------------------------
+#define	NORMAL_MODE_FB_OFFSET	256
+#define	MODE_FB_OFFSET			448
+#define	NORMAL_MODE_LOGO_SIZE	512
+#define	MODE_LOGO_SIZE			128
+
+//#define	FB_TEST		// RGB Display debug
+
+
+
 
 /* input clock of PLL */
 #define CONFIG_SYS_CLK_FREQ	24000000	/* the SMDK6400 has 24MHz input clock */
@@ -161,9 +174,16 @@
 
 #define USBD_DOWN_ADDR		0xc0000000
 
+
+
 /************************************************************
- * RTC
+ * memery
  ************************************************************/
+#define MEMORY_BASE_ADDRESS	0x30000000
+
+
+
+
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
@@ -172,6 +192,8 @@
 /***********************************************************
  * Command definition
  ***********************************************************/
+#define CONFIG_CMD_ENV
+#define CONFIG_CMD_MISC
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_REGINFO
@@ -449,9 +471,9 @@
 #define CFG_ENV_SIZE		0x4000	/* Total Size of Environment Sector */
 
 /*
- * HKDKC110 board specific data
+ * herring board specific data
  */
-#define CONFIG_IDENT_STRING	" for HKDKC110 B Type"
+#define CONFIG_IDENT_STRING	" for herring"
 
 /* total memory required by uboot */
 #define CFG_UBOOT_SIZE		(2*1024*1024)
@@ -512,12 +534,14 @@
 	""
 
 /* OneNAND configuration */
-#define CFG_ONENAND_BASE 	(0xB0000000)
+#define CONFIG_ONENAND
 #define CFG_MAX_ONENAND_DEVICE	1
+
+#define CFG_ONENAND_BASE		0xB0000000
+#define ONENAND_PAGE_SIZE	4096
 
 #define CONFIG_BOOT_ONENAND_IROM
 
-#define CONFIG_ONENAND
 #define ONENAND_REG_DBS_DFS_WIDTH 	(0x160)
 #define ONENAND_REG_FLASH_AUX_CNTRL     (0x300)
 
@@ -537,8 +561,6 @@
 
 /* Just one BSP type should be defined. */
 #define CFG_FASTBOOT_ONENANDBSP
-//#define CFG_FASTBOOT_NANDBSP
-//#define CFG_FASTBOOT_SDMMCBSP
 
 /* LCD setting */
 //#define CFG_LCD_TL2796		// for C110 - narrow LCD

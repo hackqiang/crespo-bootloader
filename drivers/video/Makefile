@@ -25,16 +25,9 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libvideo.a
 
-COBJS-y += ati_radeon_fb.o
-COBJS-$(CONFIG_ATMEL_LCD) += atmel_lcdfb.o
-COBJS-y += cfb_console.o
-COBJS-y += ct69000.o
-COBJS-y += mb862xx.o
-COBJS-y += sed13806.o
-COBJS-y += sed156x.o
-COBJS-y += sm501.o
-COBJS-y += smiLynxEM.o
 COBJS-y += videomodes.o
+COBJS-y += s5pc110_lcd.o
+
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

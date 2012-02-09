@@ -31,8 +31,7 @@ START	= start.o
 #		interrupts.o cpu.o nand.o onenand.o onenand_cp.o \
 #		usbd-otg-hs.o movi.o setup_hsmmc.o setup_ide.o \
 #		fastboot.o fimd.o pmic.o
-OBJS	= interrupts.o cpu.o onenand.o onenand_cp.o \
-		fastboot.o fimd.o pmic.o
+OBJS	= interrupts.o cpu.o fastboot.o fimd.o pmic.o
 
 all:	.depend $(START) $(LIB)
 

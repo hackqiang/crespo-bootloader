@@ -244,10 +244,18 @@ __LIBS := $(subst $(obj),,$(LIBS)) $(subst $(obj),,$(LIBBOARD))
 #########################################################################
 #########################################################################
 
-ALL += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map $(U_BOOT_NAND) $(U_BOOT_ONENAND) $(obj)u-boot.dis
+
+
+ONENAND_BL1 = onenand_bl1
+U_BOOT_ONENAND = $(obj)u-boot-onenand.bin
+
+
+
+ALL += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map $(U_BOOT_ONENAND) $(obj)u-boot.dis 
 ifeq ($(ARCH),blackfin)
 ALL += $(obj)u-boot.ldr
 endif
+
 
 all: $(ALL)
 
@@ -311,11 +319,11 @@ $(U_BOOT_NAND):	$(NAND_SPL) $(obj)u-boot.bin $(obj)include/autoconf.mk
 		cat $(obj)nand_spl/u-boot-spl-16k.bin $(obj)u-boot.bin > $(obj)u-boot-nand.bin
 
 
-$(ONENAND_IPL):	$(VERSION_FILE)	$(obj)include/autoconf.mk
-		$(MAKE) -C $(obj)onenand_bl1/$(BOARD) all
+$(ONENAND_BL1):	$(VERSION_FILE)	$(obj)include/autoconf.mk
+		$(MAKE) -C $(obj)onenand_bl1 all
 
-$(U_BOOT_ONENAND):	$(ONENAND_IPL) $(obj)u-boot.bin $(obj)include/autoconf.mk
-		cat $(obj)onenand_bl1/$(BOARD)/BL1.bin.padding $(obj)u-boot.bin > $(U_BOOT_ONENAND)
+$(U_BOOT_ONENAND):	$(ONENAND_BL1) $(obj)u-boot.bin $(obj)include/autoconf.mk
+		cat $(obj)onenand_bl1/BL1.bin.signed $(obj)u-boot.bin > $(U_BOOT_ONENAND)
 
 $(VERSION_FILE):
 		@( printf '#define U_BOOT_VERSION "U-Boot %s%s"\n' "$(U_BOOT_VERSION)" \
@@ -444,9 +452,8 @@ clean:
 	       $(obj)board/{bf533-ezkit,bf533-stamp,bf537-stamp,bf561-ezkit}/u-boot.lds \
 	       $(obj)cpu/blackfin/bootrom-asm-offsets.[chs]
 	@rm -f $(obj)include/bmp_logo.h
-	@rm -f $(obj)nand_spl/{u-boot-spl,u-boot-spl.map,System.map}
-	@rm -f $(obj)onenand_ipl/onenand-{ipl,ipl.bin,ipl-2k.bin,ipl-4k.bin,ipl.map}
-	@rm -f $(obj)api_examples/demo $(VERSION_FILE)
+	@rm -f $(obj)u-boot $(obj)u-boot.map $(obj)u-boot.hex $(ALL)
+	@make -C onenand_bl1 clean
 	@find $(OBJTREE) -type f \
 		\( -name 'core' -o -name '*.bak' -o -name '*~' \
 		-o -name '*.o'	-o -name '*.a'	\) -print \

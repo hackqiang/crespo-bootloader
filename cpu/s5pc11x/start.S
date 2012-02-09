@@ -211,6 +211,8 @@ cpu_init_crit:
 	sub	sp, sp, #12
 	mov	fp, #0			/* no previous frame, so fp=0 */
 
+/* don't need to copy uboot to ram, BL1 already done */
+#if 0
 	/* when we already run in ram, we don't need to relocate U-Boot.
 	 * and actually, memory controller must be configured before U-Boot
 	 * is running in ram.
@@ -222,11 +224,10 @@ cpu_init_crit:
 	cmp r1, r2                  /* compare r0, r1                  */
 	beq after_copy		/* r0 == r1 then skip flash copy   */
 
-
 	/* copy u-boot to RAM */
 	bl	onenand_bl2_copy
 	b	after_copy
-
+#endif
 
 after_copy:
 
